@@ -38,19 +38,20 @@ export class LangSmithClient {
     const startTime = new Date(now.getTime() - minutesAgo * 60 * 1000);
 
     try {
-      // Query runs from the last N minutes
-      const url = new URL(`${this.endpoint}/runs`);
-      url.searchParams.set("project", this.project);
-      url.searchParams.set("start_time", startTime.toISOString());
-      url.searchParams.set("end_time", now.toISOString());
-      url.searchParams.set("limit", this.queryLimit.toString());
+      // Query runs from the last N minutes using POST with filter body
+      const url = new URL(`${this.endpoint}/api/v1/runs/query`);
 
       const response = await fetch(url.toString(), {
-        method: "GET",
+        method: "POST",
         headers: {
-          "X-API-Key": this.apiKey,
+          "x-api-key": this.apiKey,
           "Content-Type": "application/json"
-        }
+        },
+        body: JSON.stringify({
+          session: this.project,
+          filter: `and(gte(start_time, "${startTime.toISOString()}"), lte(start_time, "${now.toISOString()}"))`,
+          limit: this.queryLimit
+        })
       });
 
       if (!response.ok) {
@@ -129,18 +130,19 @@ export class LangSmithClient {
     );
 
     try {
-      const url = new URL(`${this.endpoint}/runs`);
-      url.searchParams.set("project", this.project);
-      url.searchParams.set("start_time", startTime.toISOString());
-      url.searchParams.set("end_time", endTime.toISOString());
-      url.searchParams.set("limit", this.queryLimit.toString());
+      const url = new URL(`${this.endpoint}/api/v1/runs/query`);
 
       const response = await fetch(url.toString(), {
-        method: "GET",
+        method: "POST",
         headers: {
-          "X-API-Key": this.apiKey,
+          "x-api-key": this.apiKey,
           "Content-Type": "application/json"
-        }
+        },
+        body: JSON.stringify({
+          session: this.project,
+          filter: `and(gte(start_time, "${startTime.toISOString()}"), lte(start_time, "${endTime.toISOString()}"))`,
+          limit: this.queryLimit
+        })
       });
 
       if (!response.ok) {

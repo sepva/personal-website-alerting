@@ -118,9 +118,9 @@ export class CloudflareAnalyticsClient {
       return {
         requestCount,
         errorRate,
-        // Wall time is more relevant than CPU time for user experience
-        p95Latency: metrics.quantiles?.wallTimeP95 || 0,
-        p99Latency: metrics.quantiles?.wallTimeP99 || 0,
+        // Wall time is returned in microseconds by Cloudflare API, convert to milliseconds
+        p95Latency: (metrics.quantiles?.wallTimeP95 || 0) / 1000,
+        p99Latency: (metrics.quantiles?.wallTimeP99 || 0) / 1000,
         errors5xx: errors, // Cloudflare doesn't separate 4xx/5xx in this dataset
         errors4xx: 0,
         timestamp: now

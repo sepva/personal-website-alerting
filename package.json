@@ -1,0 +1,36 @@
+{
+  "name": "personal-website-alerting",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for monitoring website metrics and sending alerts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "set_secrets": "wrangler secret bulk .dev.vars",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev --test-scheduled",
+    "tail": "wrangler tail personal-website-alerting",
+    "test": "tsx src/alerting/test-local.ts",
+    "types": "wrangler types src/alerting/env.d.ts --include-runtime false",
+    "format": "prettier --write .",
+    "check": "prettier . --check && biome lint && tsc"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "alerting",
+    "monitoring"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.2",
+    "@cloudflare/workers-types": "^4.20251014.0",
+    "@types/node": "^24.10.0",
+    "dotenv": "^17.2.4",
+    "prettier": "^3.6.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.46.0"
+  },
+  "dependencies": {}
+}

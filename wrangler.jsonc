@@ -1,0 +1,65 @@
+/**
+ * Wrangler configuration for the alerting scheduled worker
+ * This worker monitors metrics and sends notifications via ntfy
+ *
+ * To deploy: wrangler deploy --config wrangler.alerting.jsonc
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "personal-website-alerting",
+  "main": "src/alerting/scheduler.ts",
+  "compatibility_date": "2025-08-03",
+  "workers_dev": false,
+  "preview_urls": false,
+  "compatibility_flags": ["nodejs_compat"],
+  /**
+   * Cron Triggers - runs every 10 minutes
+   * Free tier allows 5 cron triggers per account
+   */
+  "triggers": {
+    "crons": ["*/10 * * * *"]
+  },
+  /**
+   * KV Namespace for alert state management
+   * Create with: wrangler kv namespace create ALERT_STATE --config wrangler.alerting.jsonc
+   * Then replace the id below with the generated namespace ID
+   */
+  "kv_namespaces": [
+    {
+      "binding": "ALERT_STATE",
+      "id": "36be377225744003800037347b54aaa1",
+      "remote": true
+    }
+  ],
+  /**
+   * Environment Variables
+   */
+  "vars": {
+    // Notification settings
+    "NTFY_TOPIC": "seppe-website-alerts-2026-62c04a8823618a9a", // ntfy topic name
+    "NTFY_BASE_URL": "https://ntfy.sh",
+    // Alert timing configuration (all in minutes/hours/days)
+    "ALERT_COOLDOWN_MINUTES": "60", // Time between duplicate alerts for same metric
+    "CHECK_INTERVAL_MINUTES": "10", // How far back to check for current metrics
+    "BASELINE_PERIOD_HOURS": "1", // How far back to get baseline for comparison
+    "KV_TTL_DAYS": "7", // How long to keep alert state in KV storage
+    // API query limits
+    "LANGSMITH_QUERY_LIMIT": "1000", // Max LangSmith runs to fetch per query
+    // Cloudflare account
+    "CLOUDFLARE_ACCOUNT_ID": "70c87b807f28510394093692f2aad8c4"
+  },
+  "observability": {
+    "logs": {
+      "enabled": false,
+      "invocation_logs": true
+    }
+  }
+  /**
+   * Secrets (set via: wrangler secret put <NAME> --config wrangler.alerting.jsonc)
+   * - CLOUDFLARE_API_TOKEN: API token with Workers Analytics read permission
+   * - NTFY_TOKEN: (optional) ntfy authentication token if using authenticated topic
+   * - LANGSMITH_API_KEY: LangSmith API key for querying runs
+   * - LANGSMITH_PROJECT: LangSmith project name
+   * - LANGSMITH_ENDPOINT: (optional) defaults to https://api.smith.langchain.com
+   */
+}

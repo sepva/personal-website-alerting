@@ -1,0 +1,25 @@
+# Environment and secrets
+.dev.vars
+.dev.vars.*
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules
+dist
+build
+
+# IDEs
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Wrangler
+.wrangler
+*.sqlite3

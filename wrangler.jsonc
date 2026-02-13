@@ -17,7 +17,7 @@
    * Free tier allows 5 cron triggers per account
    */
   "triggers": {
-    "crons": ["*/10 * * * *"]
+    "crons": ["*/1 * * * *"]
   },
   /**
    * KV Namespace for alert state management
@@ -40,7 +40,7 @@
     "NTFY_BASE_URL": "https://ntfy.sh",
     // Alert timing configuration (all in minutes/hours/days)
     "ALERT_COOLDOWN_MINUTES": "60", // Time between duplicate alerts for same metric
-    "CHECK_INTERVAL_MINUTES": "10", // How far back to check for current metrics
+    "CHECK_INTERVAL_MINUTES": "1", // How far back to check for current metrics
     "BASELINE_PERIOD_HOURS": "1", // How far back to get baseline for comparison
     "KV_TTL_DAYS": "7", // How long to keep alert state in KV storage
     // API query limits
@@ -49,9 +49,18 @@
     "CLOUDFLARE_ACCOUNT_ID": "70c87b807f28510394093692f2aad8c4"
   },
   "observability": {
+    "enabled": false,
+    "head_sampling_rate": 1,
     "logs": {
-      "enabled": false,
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
       "invocation_logs": true
+    },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 1
     }
   }
   /**

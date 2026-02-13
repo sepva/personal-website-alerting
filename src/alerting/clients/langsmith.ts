@@ -19,6 +19,7 @@ export class LangSmithClient {
   private readonly endpoint: string;
   private readonly checkIntervalMinutes: number;
   private readonly queryLimit: number;
+  private sessionId: string | null = null;
 
   constructor(env: AlertingEnv) {
     this.apiKey = env.LANGSMITH_API_KEY;
@@ -28,7 +29,41 @@ export class LangSmithClient {
       env.CHECK_INTERVAL_MINUTES || "10",
       10
     );
-    this.queryLimit = parseInt(env.LANGSMITH_QUERY_LIMIT || "1000", 10);
+    this.queryLimit = parseInt(env.LANGSMITH_QUERY_LIMIT || "100", 10);
+  }
+
+  private async getSessionId(): Promise<string> {
+    if (this.sessionId) {
+      return this.sessionId;
+    }
+
+    // Query sessions to find the project by name
+    const url = new URL(`${this.endpoint}/api/v1/sessions`);
+    url.searchParams.set("name", this.project);
+    url.searchParams.set("limit", "1");
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "x-api-key": this.apiKey,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to get session ID: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      throw new Error(`Project "${this.project}" not found`);
+    }
+
+    const id = data[0].id;
+    this.sessionId = id;
+    return id;
   }
 
   async getMetrics(
@@ -38,18 +73,22 @@ export class LangSmithClient {
     const startTime = new Date(now.getTime() - minutesAgo * 60 * 1000);
 
     try {
-      // Query runs from the last N minutes
-      const url = new URL(`${this.endpoint}/runs`);
-      url.searchParams.set("project_name", this.project);
-      url.searchParams.set("start_time", startTime.toISOString());
-      url.searchParams.set("limit", this.queryLimit.toString());
+      const sessionId = await this.getSessionId();
+      
+      // Query runs from the last N minutes using POST /api/v1/runs/query
+      const url = new URL(`${this.endpoint}/api/v1/runs/query`);
 
       const response = await fetch(url.toString(), {
-        method: "GET",
+        method: "POST",
         headers: {
-          "Authorization": `Bearer ${this.apiKey}`,
+          "x-api-key": this.apiKey,
           "Content-Type": "application/json"
-        }
+        },
+        body: JSON.stringify({
+          session: [sessionId],
+          start_time: startTime.toISOString(),
+          limit: Math.min(this.queryLimit, 100)
+        })
       });
 
       if (!response.ok) {
@@ -128,17 +167,22 @@ export class LangSmithClient {
     );
 
     try {
-      const url = new URL(`${this.endpoint}/runs`);
-      url.searchParams.set("project_name", this.project);
-      url.searchParams.set("start_time", startTime.toISOString());
-      url.searchParams.set("limit", this.queryLimit.toString());
+      const sessionId = await this.getSessionId();
+      
+      const url = new URL(`${this.endpoint}/api/v1/runs/query`);
 
       const response = await fetch(url.toString(), {
-        method: "GET",
+        method: "POST",
         headers: {
-          "Authorization": `Bearer ${this.apiKey}`,
+          "x-api-key": this.apiKey,
           "Content-Type": "application/json"
-        }
+        },
+        body: JSON.stringify({
+          session: [sessionId],
+          start_time: startTime.toISOString(),
+          end_time: endTime.toISOString(),
+          limit: Math.min(this.queryLimit, 100)
+        })
       });
 
       if (!response.ok) {

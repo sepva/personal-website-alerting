@@ -1,0 +1,12 @@
+# Cloudflare API credentials
+# Get token from: https://dash.cloudflare.com/profile/api-tokens
+# Required permissions: Account > Account Analytics > Read
+CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here
+
+# LangSmith API credentials
+LANGSMITH_API_KEY=your_langsmith_api_key_here
+LANGSMITH_PROJECT=your_langsmith_project_name
+LANGSMITH_ENDPOINT=https://api.smith.langchain.com
+
+# Optional: ntfy authentication token if using authenticated topic
+# NTFY_TOKEN=your_ntfy_token_here

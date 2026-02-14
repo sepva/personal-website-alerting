@@ -8,9 +8,10 @@ import type {
 // Default thresholds - can be overridden via environment variables
 export const DEFAULT_THRESHOLDS: Thresholds = {
   errorRatePercent: 5, // 5% error rate
-  p95LatencyMs: 2000, // 2 seconds
-  p99LatencyMs: 3000, // 3 seconds
-  trafficSpikeMultiplier: 2.0, // 200% of baseline
+  p95LatencyMs: 4000, // 4 seconds
+  p99LatencyMs: 8000, // 8 seconds
+  trafficSpikeMultiplier: 4.0, // 400% of baseline
+  minBaselineRequests: 100, // Minimum baseline requests to trigger traffic spike alerts
   llmErrorRatePercent: 10, // 10% LLM error rate
   llmP95LatencyMs: 20000, // 20 seconds
   llmTokenSpikeMultiplier: 3.0 // 300% of baseline
@@ -59,8 +60,8 @@ export function checkCloudflareAnomalies(
     });
   }
 
-  // Check traffic spike (if we have baseline)
-  if (baseline && baseline.requestCount > 0) {
+  // Check traffic spike (if we have baseline and sufficient baseline traffic)
+  if (baseline && baseline.requestCount >= thresholds.minBaselineRequests) {
     const trafficRatio = current.requestCount / baseline.requestCount;
     if (trafficRatio > thresholds.trafficSpikeMultiplier) {
       anomalies.push({

@@ -44,6 +44,7 @@ export interface Thresholds {
   p95LatencyMs: number; // e.g., 2000
   p99LatencyMs: number; // e.g., 3000
   trafficSpikeMultiplier: number; // e.g., 2.0 (200%)
+  minBaselineRequests: number; // e.g., 100 - minimum baseline requests to trigger traffic spike alerts
   llmErrorRatePercent: number; // e.g., 10
   llmP95LatencyMs: number; // e.g., 10000 (10s)
   llmTokenSpikeMultiplier: number; // e.g., 3.0 (300%)

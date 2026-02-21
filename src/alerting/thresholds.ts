@@ -8,8 +8,8 @@ import type {
 // Default thresholds - can be overridden via environment variables
 export const DEFAULT_THRESHOLDS: Thresholds = {
   errorRatePercent: 5, // 5% error rate
-  p95LatencyMs: 4000, // 4 seconds
-  p99LatencyMs: 8000, // 8 seconds
+  p95LatencyMs: 8000, // 8 seconds
+  p99LatencyMs: 16000, // 16 seconds
   trafficSpikeMultiplier: 4.0, // 400% of baseline
   minBaselineRequests: 100, // Minimum baseline requests to trigger traffic spike alerts
   llmErrorRatePercent: 10, // 10% LLM error rate

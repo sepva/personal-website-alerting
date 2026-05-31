@@ -77,7 +77,8 @@ export class NtfyNotifier {
       if (
         anomaly.type.includes("error") ||
         anomaly.type === "high_error_rate" ||
-        anomaly.type === "llm_error_rate"
+        anomaly.type === "llm_error_rate" ||
+        anomaly.type === "openrouter_model_unavailable"
       ) {
         tags.add("rotating_light");
       }
@@ -86,6 +87,9 @@ export class NtfyNotifier {
       }
       if (anomaly.type === "traffic_spike") {
         tags.add("chart_with_upwards_trend");
+      }
+      if (anomaly.type === "openrouter_model_unavailable") {
+        tags.add("robot");
       }
     }
 
@@ -99,7 +103,8 @@ export class NtfyNotifier {
       traffic_spike: "Traffic Spike",
       llm_error_rate: "LLM Error Rate",
       llm_latency: "LLM Latency",
-      llm_high_tokens: "High Token Usage"
+      llm_high_tokens: "High Token Usage",
+      openrouter_model_unavailable: "OpenRouter Model Unavailable"
     };
     return titles[type];
   }

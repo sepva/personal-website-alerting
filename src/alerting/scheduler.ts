@@ -1,6 +1,7 @@
 import type { AlertingEnv, Anomaly } from "./types";
 import { CloudflareAnalyticsClient } from "./clients/cloudflare";
 import { LangSmithClient } from "./clients/langsmith";
+import { checkOpenRouterModelAvailability } from "./clients/openrouter";
 import { NtfyNotifier } from "./notifier";
 import { AlertStateManager } from "./state";
 import {
@@ -93,6 +94,50 @@ const runAlerting = async (when: Date, env: AlertingEnv): Promise<void> => {
   } catch (error) {
     console.error("[Alerting] Error in scheduled handler:", error);
     // Don't throw - we don't want to fail the entire scheduled run
+  }
+};
+
+const runDailyChecks = async (when: Date, env: AlertingEnv): Promise<void> => {
+  console.log(`[Alerting] Daily checks run at ${when.toISOString()}`);
+
+  try {
+    const notifier = new NtfyNotifier(env);
+    const stateManager = new AlertStateManager(env);
+
+    const anomalies = await checkOpenRouterModelAvailability(env).catch(
+      (err) => {
+        console.error("[Alerting] Failed to check OpenRouter model:", err);
+        return [] as Anomaly[];
+      }
+    );
+
+    console.log(
+      `[Alerting] OpenRouter: ${anomalies.length} anomalies detected`
+    );
+
+    if (anomalies.length === 0) {
+      console.log("[Alerting] No daily anomalies detected");
+      return;
+    }
+
+    const newAlerts = await stateManager.filterNewAlerts(anomalies);
+
+    if (newAlerts.length === 0) {
+      console.log(
+        "[Alerting] Daily anomalies detected but all are in cooldown"
+      );
+      return;
+    }
+
+    await notifier.sendAlert(newAlerts);
+    console.log(
+      `[Alerting] Sent daily notification for ${newAlerts.length} alerts`
+    );
+
+    await stateManager.recordAlerts(newAlerts);
+    console.log("[Alerting] Recorded daily alert state");
+  } catch (error) {
+    console.error("[Alerting] Error in daily checks:", error);
   }
 };
 
@@ -212,6 +257,10 @@ export default {
     env: AlertingEnv,
     _ctx: ExecutionContext
   ): Promise<void> {
-    await runAlerting(new Date(event.scheduledTime), env);
+    if (event.cron === "0 8 * * *") {
+      await runDailyChecks(new Date(event.scheduledTime), env);
+    } else {
+      await runAlerting(new Date(event.scheduledTime), env);
+    }
   }
 };

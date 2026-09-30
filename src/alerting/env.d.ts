@@ -22,9 +22,6 @@ declare namespace Cloudflare {
 		LANGSMITH_API_KEY: string;
 		LANGSMITH_PROJECT: string;
 		LANGSMITH_ENDPOINT?: string;
-
-		// OpenRouter model availability check
-		OPENROUTER_MODEL_ID: string;
 	}
 }
 

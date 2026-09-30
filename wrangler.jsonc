@@ -17,7 +17,7 @@
    * Free tier allows 5 cron triggers per account
    */
   "triggers": {
-    "crons": ["*/10 * * * *", "0 8 * * *"]
+    "crons": ["*/10 * * * *"]
   },
   /**
    * KV Namespace for alert state management
@@ -46,9 +46,7 @@
     // API query limits
     "LANGSMITH_QUERY_LIMIT": "1000", // Max LangSmith runs to fetch per query
     // Cloudflare account
-    "CLOUDFLARE_ACCOUNT_ID": "70c87b807f28510394093692f2aad8c4",
-    // OpenRouter model to monitor for availability
-    "OPENROUTER_MODEL_ID": "" // e.g. "meta-llama/llama-3.3-70b-instruct:free"
+    "CLOUDFLARE_ACCOUNT_ID": "70c87b807f28510394093692f2aad8c4"
   },
   "observability": {
     "enabled": false,

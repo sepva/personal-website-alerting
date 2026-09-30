@@ -26,8 +26,7 @@ export interface Anomaly {
     | "traffic_spike"
     | "llm_error_rate"
     | "llm_latency"
-    | "llm_high_tokens"
-    | "openrouter_model_unavailable";
+    | "llm_high_tokens";
   severity: "high" | "default";
   message: string;
   value: number;
@@ -77,9 +76,6 @@ export interface AlertingEnv {
   LANGSMITH_API_KEY: string;
   LANGSMITH_PROJECT: string;
   LANGSMITH_ENDPOINT?: string;
-
-  // OpenRouter model availability check
-  OPENROUTER_MODEL_ID: string;
 }
 
 // Re-export for convenience
